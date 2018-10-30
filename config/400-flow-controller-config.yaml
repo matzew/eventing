@@ -18,4 +18,4 @@ metadata:
   namespace: knative-eventing
 data:
   # Configuration for the flow controller
-  default-cluster-bus: stub
+  default-cluster-bus: kafka
