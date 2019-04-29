@@ -51,7 +51,9 @@ data:
         apiservicedefinitions: {}
         customresourcedefinitions:
           owned:
-          - kind: Install
+          - description: Knative Eventing Installation
+            displayName: Install Operator
+            kind: Install
             name: installs.eventing.knative.dev
             version: v1alpha1
         description: Placeholder description
