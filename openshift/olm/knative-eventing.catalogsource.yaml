@@ -84,7 +84,7 @@ data:
                     - args:
                       - --install
                       - --namespace=$WATCH_NAMESPACE
-                      - --filename=https://raw.githubusercontent.com/openshift/knative-eventing/release-v0.5.0/openshift/release/knative-eventing-v0.5.0.yaml,https://raw.githubusercontent.com/openshift/knative-eventing-sources/release-v0.5.0/openshift/release/knative-eventing-sources-v0.5.0.yaml
+                      - --filename=https://raw.githubusercontent.com/openshift/knative-eventing/release-v0.5.0/openshift/release/knative-eventing-v0.5.0.yaml,https://raw.githubusercontent.com/matzew/eventing-sources/one_namespace/openshift/release/knative-eventing-sources-v0.5.0.yaml
                       command:
                       - knative-eventing-operator
                       env:
