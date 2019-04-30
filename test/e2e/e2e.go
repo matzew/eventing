@@ -21,8 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/errors"
-
 	"github.com/knative/eventing/pkg/apis/eventing/v1alpha1"
 	"github.com/knative/eventing/test"
 	pkgTest "github.com/knative/pkg/test"
@@ -30,10 +28,9 @@ import (
 	servingV1alpha1 "github.com/knative/serving/pkg/apis/serving/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
-
-	// Mysteriously required to support GCP auth (required by k8s libs).
+	"k8s.io/apimachinery/pkg/util/wait" // Mysteriously required to support GCP auth (required by k8s libs).
 	// Apparently just importing it is enough. @_@ side effects @_@.
 	// https://github.com/kubernetes/client-go/issues/242
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -366,6 +363,16 @@ func LabelNamespace(clients *test.Clients, logf logging.FormatLogger, labels map
 	}
 	_, err = clients.Kube.Kube.CoreV1().Namespaces().Update(nsSpec)
 	return err
+}
+
+// logPodLogsForDebugging add the pod logs in the testing log for further debugging.
+func logPodLogsForDebugging(clients *test.Clients, podName, containerName, namespace string, logf logging.FormatLogger) {
+	logs, err := clients.Kube.PodLogs(podName, containerName, namespace)
+	if err != nil {
+		logf("Failed to get the logs for container %q of the pod %q in namespace %q: %v", containerName, podName, namespace, err)
+	} else {
+		logf("Logs for the container %q of the pod %q in namespace %q:\n%s", containerName, podName, namespace, string(logs))
+	}
 }
 
 func NamespaceExists(t *testing.T, clients *test.Clients, logf logging.FormatLogger) (string, func()) {
