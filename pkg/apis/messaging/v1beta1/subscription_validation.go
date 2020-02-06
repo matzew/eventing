@@ -27,24 +27,25 @@ import (
 )
 
 func (s *Subscription) Validate(ctx context.Context) *apis.FieldError {
-	return s.Spec.Validate(ctx).ViaField("spec")
+	withNS := apis.WithinParent(ctx, s.ObjectMeta)
+	return s.Spec.Validate(withNS).ViaField("spec")
 }
 
-func (ss *SubscriptionSpec) Validate(ctx context.Context) *apis.FieldError {
+func (spec *SubscriptionSpec) Validate(ctx context.Context) *apis.FieldError {
 	// We require always Channel.
 	// Also at least one of 'subscriber' and 'reply' must be defined (non-nil and non-empty).
 
 	var errs *apis.FieldError
-	if isChannelEmpty(ss.Channel) {
-		fe := apis.ErrMissingField("channel")
-		fe.Details = "the Subscription must reference a channel"
-		return fe
-	} else if fe := isValidChannel(ss.Channel); fe != nil {
-		errs = errs.Also(fe.ViaField("channel"))
+
+	// Validate the Channel
+	if spec.Channel != nil {
+		if ce := spec.Channel.Validate(ctx); ce != nil {
+			errs = errs.Also(ce.ViaField("channel"))
+		}
 	}
 
-	missingSubscriber := isDestinationNilOrEmpty(ss.Subscriber)
-	missingReply := isDestinationNilOrEmpty(ss.Reply)
+	missingSubscriber := isDestinationNilOrEmpty(spec.Subscriber)
+	missingReply := isDestinationNilOrEmpty(spec.Reply)
 	if missingSubscriber && missingReply {
 		fe := apis.ErrMissingField("reply", "subscriber")
 		fe.Details = "the Subscription must reference at least one of (reply or a subscriber)"
@@ -52,13 +53,13 @@ func (ss *SubscriptionSpec) Validate(ctx context.Context) *apis.FieldError {
 	}
 
 	if !missingSubscriber {
-		if fe := ss.Subscriber.Validate(ctx); fe != nil {
+		if fe := spec.Subscriber.Validate(ctx); fe != nil {
 			errs = errs.Also(fe.ViaField("subscriber"))
 		}
 	}
 
 	if !missingReply {
-		if fe := ss.Reply.Validate(ctx); fe != nil {
+		if fe := spec.Reply.Validate(ctx); fe != nil {
 			errs = errs.Also(fe.ViaField("reply"))
 		}
 	}

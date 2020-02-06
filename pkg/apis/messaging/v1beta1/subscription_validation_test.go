@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	corev1 "k8s.io/api/core/v1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
@@ -36,8 +35,8 @@ const (
 	namespace         = "namespace"
 )
 
-func getValidChannelRef() corev1.ObjectReference {
-	return corev1.ObjectReference{
+func getValidChannelRef() *duckv1.KReference {
+	return &duckv1.KReference{
 		Name:       channelName,
 		Kind:       channelKind,
 		APIVersion: channelAPIVersion,
@@ -70,7 +69,7 @@ func TestSubscriptionValidation(t *testing.T) {
 	name := "empty channel"
 	c := &Subscription{
 		Spec: SubscriptionSpec{
-			Channel: corev1.ObjectReference{},
+			Channel: &duckv1.KReference{},
 		},
 	}
 	want := &apis.FieldError{
@@ -111,7 +110,7 @@ func TestSubscriptionSpecValidation(t *testing.T) {
 	}, {
 		name: "empty Channel",
 		c: &SubscriptionSpec{
-			Channel: corev1.ObjectReference{},
+			Channel: &duckv1.KReference{},
 		},
 		want: func() *apis.FieldError {
 			fe := apis.ErrMissingField("channel")
@@ -121,7 +120,7 @@ func TestSubscriptionSpecValidation(t *testing.T) {
 	}, {
 		name: "missing name in Channel",
 		c: &SubscriptionSpec{
-			Channel: corev1.ObjectReference{
+			Channel: &duckv1.KReference{
 				Kind:       channelKind,
 				APIVersion: channelAPIVersion,
 			},
@@ -186,7 +185,7 @@ func TestSubscriptionSpecValidation(t *testing.T) {
 	}, {
 		name: "missing name in channel, and missing subscriber, reply",
 		c: &SubscriptionSpec{
-			Channel: corev1.ObjectReference{
+			Channel: &duckv1.KReference{
 				Kind:       channelKind,
 				APIVersion: channelAPIVersion,
 			},
@@ -362,11 +361,11 @@ func TestSubscriptionImmutable(t *testing.T) {
 func TestValidChannel(t *testing.T) {
 	tests := []struct {
 		name string
-		c    corev1.ObjectReference
+		c    *duckv1.KReference
 		want *apis.FieldError
 	}{{
 		name: "valid",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			Name:       channelName,
 			APIVersion: channelAPIVersion,
 			Kind:       channelKind,
@@ -374,7 +373,7 @@ func TestValidChannel(t *testing.T) {
 		want: nil,
 	}, {
 		name: "missing name",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			APIVersion: channelAPIVersion,
 			Kind:       channelKind,
 		},
@@ -384,7 +383,7 @@ func TestValidChannel(t *testing.T) {
 		}(),
 	}, {
 		name: "missing apiVersion",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			Name: channelName,
 			Kind: channelKind,
 		},
@@ -393,7 +392,7 @@ func TestValidChannel(t *testing.T) {
 		}(),
 	}, {
 		name: "extra field, namespace",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			Name:       channelName,
 			APIVersion: channelAPIVersion,
 			Kind:       channelKind,
@@ -406,12 +405,11 @@ func TestValidChannel(t *testing.T) {
 		}(),
 	}, {
 		name: "extra field, namespace and resourceVersion",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			Name:            channelName,
 			APIVersion:      channelAPIVersion,
 			Kind:            channelKind,
 			Namespace:       "secretnamespace",
-			ResourceVersion: "myresourceversion",
 		},
 		want: func() *apis.FieldError {
 			fe := apis.ErrDisallowedFields("Namespace", "ResourceVersion")
@@ -421,7 +419,7 @@ func TestValidChannel(t *testing.T) {
 	}, {
 		// Make sure that if an empty field for namespace is given, it's treated as not there.
 		name: "valid extra field, namespace empty",
-		c: corev1.ObjectReference{
+		c: &duckv1.KReference{
 			Name:       channelName,
 			APIVersion: channelAPIVersion,
 			Kind:       channelKind,
@@ -432,7 +430,7 @@ func TestValidChannel(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := isValidChannel(test.c)
+			got :=  test.c.Validate(context.Background())
 			if diff := cmp.Diff(test.want.Error(), got.Error()); diff != "" {
 				t.Errorf("isValidChannel (-want, +got) = %v", diff)
 			}
