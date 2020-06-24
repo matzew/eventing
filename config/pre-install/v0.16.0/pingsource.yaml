@@ -32,31 +32,31 @@ spec:
   versions:
   - &version
     name: v1alpha2
-      served: true
-      storage: true
-      subresources:
-        status: {}
-      schema:
-        openAPIV3Schema:
-          type: object
-          # this is a work around so we don't need to flush out the
-          # schema for each version at this time
-          #
-          # see issue: https://github.com/knative/serving/issues/912
-          x-kubernetes-preserve-unknown-fields: true
-      additionalPrinterColumns:
-      - name: Ready
-        type: string
-        jsonPath: ".status.conditions[?(@.type=='Ready')].status"
-      - name: Reason
-        type: string
-        jsonPath: ".status.conditions[?(@.type=='Ready')].reason"
-      - name: Sink
-        type: string
-        jsonPath: .status.sinkUri
-      - name: Age
-        type: date
-        jsonPath: .metadata.creationTimestamp
+    served: true
+    storage: true
+    subresources:
+      status: {}
+    schema:
+      openAPIV3Schema:
+        type: object
+        # this is a work around so we don't need to flush out the
+        # schema for each version at this time
+        #
+        # see issue: https://github.com/knative/serving/issues/912
+        x-kubernetes-preserve-unknown-fields: true
+    additionalPrinterColumns:
+    - name: Ready
+      type: string
+      jsonPath: ".status.conditions[?(@.type=='Ready')].status"
+    - name: Reason
+      type: string
+      jsonPath: ".status.conditions[?(@.type=='Ready')].reason"
+    - name: Sink
+      type: string
+      jsonPath: .status.sinkUri
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
   - << : *version
     name: v1alpha1
     served: false
