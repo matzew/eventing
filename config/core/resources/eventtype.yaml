@@ -58,10 +58,6 @@ spec:
     - name: Reason
       type: string
       jsonPath: ".status.conditions[?(@.type==\"Ready\")].reason"
-  - << : *version
-    name: v1alpha1
-    served: false
-    storage: false
   names:
     kind: EventType
     plural: eventtypes
