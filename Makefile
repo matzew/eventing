@@ -35,7 +35,7 @@ test-conformance:
 .PHONY: test-conformance
 
 test-reconciler:
-	sh openshift/e2e-rekt-tests.sh
+	echo "Disabled for now"
 .PHONY: test-reconciler
 
 # Requires ko 0.2.0 or newer.
