@@ -24,13 +24,14 @@ metadata:
 spec:
   group: sources.knative.dev
   versions:
-    - name: v1
+    - &version
+      name: v1alpha2
       served: true
-      storage: true
+      storage: false
       subresources:
         status: {}
       schema:
-        openAPIV3Schema:
+        openAPIV3Schema: &openAPIV3Schema
           description: 'ContainerSource is an event source that starts a container image which generates events under certain situations and sends messages to a sink URI'
           type: object
           properties:
@@ -139,6 +140,22 @@ spec:
         - name: Reason
           type: string
           jsonPath: ".status.conditions[?(@.type=='Ready')].reason"
+    - <<: *version
+      name: v1beta1
+      served: true
+      storage: false
+      # the schema of v1beta1 is exactly the same as v1alpha2 schema
+      schema:
+        openAPIV3Schema:
+          <<: *openAPIV3Schema
+    - <<: *version
+      name: v1
+      served: true
+      storage: true
+      # the schema of v1 is exactly the same as v1beta1 schema
+      schema:
+        openAPIV3Schema:
+          <<: *openAPIV3Schema
   names:
     categories:
       - all

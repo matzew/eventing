@@ -19,11 +19,10 @@ package v1beta1
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-
-	corev1 "k8s.io/api/core/v1"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
+
+	"github.com/google/go-cmp/cmp"
+	corev1 "k8s.io/api/core/v1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
@@ -31,7 +30,9 @@ import (
 var (
 	trueValue  = true
 	falseValue = false
+)
 
+var (
 	eventTypeConditionReady = apis.Condition{
 		Type:   EventTypeConditionReady,
 		Status: corev1.ConditionTrue,
@@ -46,10 +47,6 @@ var (
 		Type:   EventTypeConditionBrokerReady,
 		Status: corev1.ConditionTrue,
 	}
-
-	ignoreAllButTypeAndStatus = cmpopts.IgnoreFields(
-		apis.Condition{},
-		"LastTransitionTime", "Message", "Reason", "Severity")
 )
 
 func TestEventTypeGetConditionSet(t *testing.T) {

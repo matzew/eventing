@@ -18,8 +18,8 @@ package v1beta1
 
 import (
 	corev1 "k8s.io/api/core/v1"
-
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
+
 	"knative.dev/pkg/apis"
 )
 

@@ -23,13 +23,14 @@ metadata:
 spec:
   group: messaging.knative.dev
   versions:
-  - name: v1
+  - &version
+    name: v1beta1
     served: true
-    storage: true
+    storage: false
     subresources:
       status: {}
     schema:
-      openAPIV3Schema:
+      openAPIV3Schema: &openAPIV3Schema
         description: 'InMemoryChannel is a resource representing an in memory channel'
         type: object
         properties:
@@ -222,6 +223,13 @@ spec:
     - name: Reason
       type: string
       jsonPath: ".status.conditions[?(@.type==\"Ready\")].reason"
+  - << : *version
+    name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        <<: *openAPIV3Schema
   names:
     kind: InMemoryChannel
     plural: inmemorychannels
