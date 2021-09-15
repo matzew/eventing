@@ -1,9 +1,9 @@
 diff --git a/config/channels/in-memory-channel/configmaps/observability.yaml b/config/channels/in-memory-channel/configmaps/observability.yaml
 deleted file mode 100644
-index cad2fc51e..000000000
+index 9d1c67da7..000000000
 --- a/config/channels/in-memory-channel/configmaps/observability.yaml
 +++ /dev/null
-@@ -1,73 +0,0 @@
+@@ -1,75 +0,0 @@
 -# Copyright 2021 The Knative Authors
 -
 -# Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,8 @@ index cad2fc51e..000000000
 -    eventing.knative.dev/release: devel
 -    knative.dev/config-propagation: original
 -    knative.dev/config-category: eventing
+-    app.kubernetes.io/version: devel
+-    app.kubernetes.io/part-of: knative-eventing
 -  annotations:
 -    knative.dev/example-checksum: "f46cf09d"
 -data:
@@ -79,10 +81,10 @@ index cad2fc51e..000000000
 -    sink-event-error-reporting.enable: "false"
 diff --git a/config/channels/in-memory-channel/configmaps/tracing.yaml b/config/channels/in-memory-channel/configmaps/tracing.yaml
 deleted file mode 100644
-index a699f1321..000000000
+index 30ac4974a..000000000
 --- a/config/channels/in-memory-channel/configmaps/tracing.yaml
 +++ /dev/null
-@@ -1,59 +0,0 @@
+@@ -1,61 +0,0 @@
 -# Copyright 2021 The Knative Authors
 -#
 -# Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,6 +108,8 @@ index a699f1321..000000000
 -    eventing.knative.dev/release: devel
 -    knative.dev/config-propagation: original
 -    knative.dev/config-category: eventing
+-    app.kubernetes.io/version: devel
+-    app.kubernetes.io/part-of: knative-eventing
 -  annotations:
 -    knative.dev/example-checksum: "4002b4c2"
 -data:
