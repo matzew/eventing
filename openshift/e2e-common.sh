@@ -108,7 +108,7 @@ spec:
     spec:
       containers:
       - name: zipkin
-        image: docker.io/openzipkin/zipkin:2.13.0
+        image: docker.io/openzipkin/zipkin:latest
         ports:
         - containerPort: 9411
         env:
