@@ -2990,6 +2990,7 @@ spec:
               delivery:
                 description: Delivery contains the delivery spec for this specific trigger.
                 type: object
+                x-kubernetes-preserve-unknown-fields: true # This is necessary to enable the experimental feature delivery-timeout
                 properties:
                   backoffDelay:
                     description: 'BackoffDelay is the delay before retrying. More information on Duration format: - https://www.iso.org/iso-8601-date-and-time-format.html - https://en.wikipedia.org/wiki/ISO_8601  For linear policy, backoff delay is backoffDelay*<numberOfRetries>. For exponential policy, backoff delay is backoffDelay*2^<numberOfRetries>.'
@@ -3218,7 +3219,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-controller
+        image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-controller
         resources:
           requests:
             cpu: 100m
@@ -3235,7 +3236,7 @@ spec:
           - name: METRICS_DOMAIN
             value: knative.dev/eventing
           - name: APISERVER_RA_IMAGE
-            value: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-apiserver-receive-adapter
+            value: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-apiserver-receive-adapter
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -3278,7 +3279,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: dispatcher
-          image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-mtping
+          image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-mtping
           env:
             - name: SYSTEM_NAMESPACE
               value: ''
@@ -3423,7 +3424,7 @@ spec:
       containers:
       - name: eventing-webhook
         terminationMessagePolicy: FallbackToLogsOnError
-        image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-webhook
+        image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-webhook
         resources:
           requests:
             cpu: 100m
@@ -3639,7 +3640,7 @@ spec:
       enableServiceLinks: false
       containers:
       - name: controller
-        image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-sugar-controller
+        image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-sugar-controller
         env:
           - name: CONFIG_LOGGING_NAME
             value: config-logging
@@ -3772,7 +3773,7 @@ spec:
       enableServiceLinks: false
       containers:
       - name: controller
-        image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-channel-controller
+        image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-channel-controller
         env:
           - name: WEBHOOK_NAME
             value: inmemorychannel-webhook
@@ -3789,7 +3790,7 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: DISPATCHER_IMAGE
-            value: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-channel-dispatcher
+            value: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-channel-dispatcher
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -3880,7 +3881,7 @@ spec:
       enableServiceLinks: false
       containers:
       - name: dispatcher
-        image: registry.ci.openshift.org/openshift/knative-v0.25.0:knative-eventing-channel-dispatcher
+        image: registry.ci.openshift.org/openshift/knative-v0.25.1:knative-eventing-channel-dispatcher
         readinessProbe: &probe
           failureThreshold: 3
           httpGet:
