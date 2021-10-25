@@ -1,15 +1,15 @@
 diff --git a/test/rekt/broker_test.go b/test/rekt/broker_test.go
-index 2f13b88de..53a92020c 100644
+index 3b01c8dc2..06d824591 100644
 --- a/test/rekt/broker_test.go
 +++ b/test/rekt/broker_test.go
-@@ -54,6 +54,7 @@ func TestBrokerAsMiddleware(t *testing.T) {
+@@ -55,6 +55,7 @@ func TestBrokerAsMiddleware(t *testing.T) {
  
  // TestBrokerDLQ
  func TestBrokerWithDLQ(t *testing.T) {
 +	t.Skip("skipping for test reasons...")
- 	class := eventing.MTChannelBrokerClassValue
- 
  	ctx, env := global.Environment(
+ 		knative.WithKnativeNamespace(system.Namespace()),
+ 		knative.WithLoggingConfig,
 diff --git a/test/rekt/resources/containersource/containersource.yaml b/test/rekt/resources/containersource/containersource.yaml
 index f480b459b..51ebb5c82 100644
 --- a/test/rekt/resources/containersource/containersource.yaml
