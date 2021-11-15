@@ -12,14 +12,14 @@ A little table to coordinate the midstream release/ci automation for our fork re
 | ------- | --------------- |
 | v0.25   | devguyio        |
 | v0.26   | lberk           |
-| v0.27   | aliok           |
-| v0.28   | matzew          |
-| v0.29   | pierdipi        |
-| v0.20   | devguyio        |
-| v0.31   | lberk           |
-| v0.32   | aliok           |
-| v0.33   | matzew          |
-| v0.34   | pierdipi        |
+| v1.0    | aliok           |
+| v1.1    | matzew          |
+| v1.2    | pierdipi        |
+| v1.3    | devguyio        |
+| v1.4    | lberk           |
+| v1.5    | aliok           |
+| v1.6    | matzew          |
+| v1.7    | pierdipi        |
 
 ## CI Rotation
 
