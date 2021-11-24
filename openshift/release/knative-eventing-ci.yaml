@@ -3262,7 +3262,7 @@ metadata:
     app.kubernetes.io/part-of: knative-eventing
 data:
   kreference-group: "disabled"
-  delivery-timeout: "disabled"
+  delivery-timeout: "enabled"
   kreference-mapping: "disabled"
 ---
 apiVersion: v1
