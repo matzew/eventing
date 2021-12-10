@@ -1,6 +1,6 @@
 diff --git a/config/channels/in-memory-channel/configmaps/observability.yaml b/config/channels/in-memory-channel/configmaps/observability.yaml
 deleted file mode 100644
-index 9d1c67da7..000000000
+index f9f9e6328..000000000
 --- a/config/channels/in-memory-channel/configmaps/observability.yaml
 +++ /dev/null
 @@ -1,75 +0,0 @@
@@ -28,7 +28,7 @@ index 9d1c67da7..000000000
 -    knative.dev/config-propagation: original
 -    knative.dev/config-category: eventing
 -    app.kubernetes.io/version: devel
--    app.kubernetes.io/part-of: knative-eventing
+-    app.kubernetes.io/name: knative-eventing
 -  annotations:
 -    knative.dev/example-checksum: "f46cf09d"
 -data:
@@ -81,7 +81,7 @@ index 9d1c67da7..000000000
 -    sink-event-error-reporting.enable: "false"
 diff --git a/config/channels/in-memory-channel/configmaps/tracing.yaml b/config/channels/in-memory-channel/configmaps/tracing.yaml
 deleted file mode 100644
-index f3c252cd9..000000000
+index 99278315f..000000000
 --- a/config/channels/in-memory-channel/configmaps/tracing.yaml
 +++ /dev/null
 @@ -1,56 +0,0 @@
@@ -109,7 +109,7 @@ index f3c252cd9..000000000
 -    knative.dev/config-propagation: original
 -    knative.dev/config-category: eventing
 -    app.kubernetes.io/version: devel
--    app.kubernetes.io/part-of: knative-eventing
+-    app.kubernetes.io/name: knative-eventing
 -  annotations:
 -    knative.dev/example-checksum: "c8f8c47b"
 -data:
