@@ -29,16 +29,20 @@ When adding a new release, check if the corresponding version in "Possible Outda
 
 | Week Starting        | CI Duty  |
 |----------------------|----------|
-| 2022-01-10T01:00:00Z | aliok    |
-| 2022-01-17T01:00:00Z | devguyio |
 | 2022-01-24T01:00:00Z | lberk    |
 | 2022-01-31T01:00:00  | matzew   |
 | 2022-02-07T01:00:00Z | pierDipi |
 | 2022-02-14T01:00:00Z | aliok    |
 | 2022-02-21T01:00:00Z | devguyio |
-| 2022-02-28T01:00:00Z | lberk    |
-| 2022-03-07T01:00:00  | matzew   |
-| 2022-03-14T01:00:00Z | pierDipi |
+| 2022-02-28T01:00:00Z | pierDipi |
+| 2022-03-07T01:00:00  | aliok    |
+| 2022-03-14T01:00:00Z | devguyio |
+| 2022-03-21T01:00:00Z | pierDipi |
+| 2022-03-28T01:00:00Z | aliok    |
+| 2022-04-04T01:00:00Z | devguyio |
+| 2022-04-11T01:00:00Z | pierDipi |
+| 2022-04-18T01:00:00Z | aliok    |
+| 2022-04-25T01:00:00Z | matzew   |
 
 
 ## How this repository works ?
