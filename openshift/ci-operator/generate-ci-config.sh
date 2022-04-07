@@ -52,6 +52,18 @@ function generate_cron_expression {
     echo '0 7 * * 1-5'
   elif [[ "$branch" == "knative-v1.2" ]]; then
     echo '0 9 * * 1-5'
+  elif [[ "$branch" == "knative-v1.3" ]]; then
+    echo '0 11 * * 1-5'
+  elif [[ "$branch" == "knative-v1.4" ]]; then
+    echo '0 11 * * 1-5'
+  elif [[ "$branch" == "knative-v1.5" ]]; then
+    echo '0 13 * * 1-5'
+  elif [[ "$branch" == "knative-v1.6" ]]; then
+    echo '0 15 * * 1-5'
+  elif [[ "$branch" == "knative-v1.7" ]]; then
+    echo '0 17 * * 1-5'
+  elif [[ "$branch" == "knative-v1.8" ]]; then
+    echo '0 19 * * 1-5'
   fi
 }
 
