@@ -140,19 +140,11 @@ test_binary_build_commands: make test-install
 EOF
 }
 
-function print_openshift_47_tests {
-  cron="$(generate_cron_expression)"
+function print_tests {
+  cat <<EOF
+tests:
+EOF
 
-  print_single_test    "e2e-aws-ocp-${openshift//./}"             "make test-e2e"         "aws" "false" "ipi-aws" ""
-  print_single_test    "conformance-aws-ocp-${openshift//./}"     "make test-conformance" "aws" "false" "ipi-aws" ""
-  print_single_test    "reconciler-aws-ocp-${openshift//./}"      "make test-reconciler"  "aws" "false" "ipi-aws" ""
-
-  if [[ "$generate_continuous" == true ]]; then
-    print_single_test "e2e-aws-ocp-${openshift//./}-continuous"  "make test-e2e"          "aws" "false" "ipi-aws" "${cron}"
-  fi
-}
-
-function print_non_openshift_47_tests {
   cron="$(generate_cron_expression)"
 
   print_single_test    "e2e-aws-ocp-${openshift//./}"             "make test-e2e"         "" "true" "generic-claim" ""
@@ -162,18 +154,7 @@ function print_non_openshift_47_tests {
   if [[ "$generate_continuous" == true ]]; then
     print_single_test "e2e-aws-ocp-${openshift//./}-continuous"  "make test-e2e"          "" "true" "generic-claim" "${cron}"
   fi
-}
 
-function print_tests {
-  cat <<EOF
-tests:
-EOF
-
-  if [[ "$openshift" != "4.7" ]]; then
-    print_non_openshift_47_tests
-  else
-    print_openshift_47_tests
-  fi
 }
 
 function print_releases {
