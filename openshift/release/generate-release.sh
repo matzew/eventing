@@ -18,6 +18,7 @@ fi
 resolve_resources config/ $output_file $image_prefix $tag
 
 # Sugar testing configuration
+echo "---" >> $output_file
 cat test/config/sugar.yaml >> $output_file
 
 # InMemoryChannel folders...
