@@ -1,45 +1,13 @@
-# Preparing a midstream release branch
+# Openshift Knative Eventing Release procedure
 
-To create a release branch for openshift/knative-eventing repo, you need to run a few steps
+The Openshift Knative Eventing release cut is mostly automated and requires only two manual steps for enabling the CI runs on the `openshift/release` repository.
 
-## Steps on the midstream repo
+No manual creation of a midstream `release-v1.x` branch is needed. The nightly Jenkins job, does create a `release` branch, as soo as the upstream has created a new release tag. The code for this script is located in this [script](./release/mirror-upstream-branches.sh), which does mirror the upstream release tag to our midstream `release` branches.
 
-### Check that a remote reference to openshift and upstream exists
-
-Like:
-
-```bash
-$ git remote -v | grep -e 'openshift\|upstream'
-openshift	git@github.com:openshift/knative-eventing.git (fetch)
-openshift	git@github.com:openshift/knative-eventing.git (push)
-upstream	https://github.com/knative/eventing.git (fetch)
-upstream	https://github.com/knative/eventing.git (push)
-```
-
-### Create a new release branch which points to upstream release branch + OpenShift specific files:
-```bash
-# Create a new release branch. Parameters are the upstream release tag
-# and the name of the branch to create
-# Usage: ./create-release-branch.sh <upstream-tag> <downstream-release-branch>
-# <upstream-tag>: The tag referring the upstream release
-# <downstream-release-branch>: Name of the release branch to create
-
-UPSTREAM_TAG="v0.20.0"
-MIDSTREAM_BRANCH="release-v0.20.0"
-$ ./openshift/release/create-release-branch.sh $UPSTREAM_TAG $MIDSTREAM_BRANCH
-```
-
-
-### Push the new release branch:
-```bash
-# Push release branch to openshift/knative-eventing repo
-$ git push openshift $MIDSTREAM_BRANCH
-```
-
-### Create a ci-operator configuration, prow job configurations and image mirroring config:
+## Enable CI for the release branch
 
 * Create a fork and clone of https://github.com/openshift/release into your `$GOPATH`
-* On your `openshift/knative-eventing` root folder, run:
+* On your `openshift/knative-eventing` root folder checkout the new `release-vX.Y` branch and run:
 
 ```bash
 # Invoke CI config generation, and mirroring images
@@ -47,43 +15,28 @@ $ git push openshift $MIDSTREAM_BRANCH
 make update-ci
 ```
 
-## Steps on the `openshift/release` repo:
-
-The above `make update-ci` adds new CI configs that need to be PR'ed
-
-## Create a PR against openshift/release repo
+The above `make update-ci` adds new CI configuration to the `openshift/release` repository and afterwards shows which new files were added, like below:
 
 ```bash
-# Verify the changes
-$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 180 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	modified:   core-services/image-mirroring/knative/mapping_knative_v0_20_quay
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v0.20.0.yaml
-	ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v0.20.0__46.yaml
-	ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v0.20.0__47.yaml
-	ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v0.20.0-postsubmits.yaml
-	ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v0.20.0-presubmits.yaml
-
-# Add & Commit all and push to your repo
-$ git add .
-$ git commit -a -m "knative-eventing release v0.20.0 setup"
-$ git push
-
-# Create pull request on https://github.com/openshift/release with your changes
-# Once PR against openshift/release repo is merged, the CI is setup for release-branch
+make[1]: Leaving directory '/home/matzew/go/src/github.com/openshift/release'
+┌────────────────────────────────────────────────────────────┐
+│ Summary...                                                 │
+└────────────────────────────────────────────────────────────┘
+│─── New files in /home/matzew/go/src/github.com/openshift/release
+ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__410.yaml
+ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__48.yaml
+ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__49.yaml
+ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-periodics.yaml
+ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-postsubmits.yaml
+ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-presubmits.yaml
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Commit changes to /home/matzew/go/src/github.com/openshift/release and create a PR                                     │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+➜  eventing git:(release-v1.4)
 ```
 
-If there are no major changes, that should be it - you are done.
+As stated by the `make` target, these changes need to be PR'd against that repository. Once the PR is merged, the CI jobs for the new `release-vX.Y` repo is done.
 
-Note: Notify any changes required for this release, for e.g.: new commands, commands output update, etc. to docs team.
+### Serverless Operator
+
+_Making use of the midstream release on the serverless operator is discussed on its own release manual..._
