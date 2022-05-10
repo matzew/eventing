@@ -4,7 +4,13 @@ source $(dirname $0)/resolve.sh
 
 release=$1
 
-output_file="openshift/release/knative-eventing-ci.yaml"
+artifacts_dir="openshift/release/artifacts/"
+rm -rf $artifacts_dir
+mkdir -p $artifacts_dir
+
+eventing_core="${artifacts_dir}knative-eventing-core.yaml"
+eventing_imc="${artifacts_dir}knative-eventing-imc.yaml"
+eventing_mt_broker="${artifacts_dir}knative-eventing-mt-broker.yaml"
 
 if [ "$release" == "ci" ]; then
     image_prefix="registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-"
@@ -14,45 +20,37 @@ else
     tag=""
 fi
 
-# the core parts
-resolve_resources config/ $output_file $image_prefix $tag
+# Eventing core
+resolve_resources config/ $eventing_core $image_prefix $tag
+resolve_resources config/sugar/ eventing-core-resolved.yaml $image_prefix $tag
+cat eventing-core-resolved.yaml >> $eventing_core
+rm eventing-core-resolved.yaml
 
-# Sugar Controller
-resolve_resources config/sugar/ crd-sugar-resolved.yaml $image_prefix $tag
-cat crd-sugar-resolved.yaml >> $output_file
-rm crd-sugar-resolved.yaml
+# InMemoryChannel folders
+## The root folder
+resolve_resources config/channels/in-memory-channel/ imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
+## The configmaps folder
+resolve_resources config/channels/in-memory-channel/configmaps imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
+## The deployments folder
+resolve_resources config/channels/in-memory-channel/deployments imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
+## The resources folder
+resolve_resources config/channels/in-memory-channel/resources imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
+## The roles folder
+resolve_resources config/channels/in-memory-channel/roles imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
+## The webhooks folder
+resolve_resources config/channels/in-memory-channel/webhooks imc-channel-resolved.yaml $image_prefix $tag
+cat imc-channel-resolved.yaml >> $eventing_imc
+rm imc-channel-resolved.yaml
 
-# InMemoryChannel folders...
-# The root folder
-resolve_resources config/channels/in-memory-channel/ crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# The configmaps folder
-resolve_resources config/channels/in-memory-channel/configmaps crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# The deployments folder
-resolve_resources config/channels/in-memory-channel/deployments crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# The resources folder
-resolve_resources config/channels/in-memory-channel/resources crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# The roles folder
-resolve_resources config/channels/in-memory-channel/roles crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# The webhooks folder
-resolve_resources config/channels/in-memory-channel/webhooks crd-channel-resolved.yaml $image_prefix $tag
-cat crd-channel-resolved.yaml >> $output_file
-rm crd-channel-resolved.yaml
-
-# the MT Broker:
-output_file="openshift/release/knative-eventing-mtbroker-ci.yaml"
-resolve_resources config/brokers/mt-channel-broker/ $output_file $image_prefix $tag
+# MT Broker
+resolve_resources config/brokers/mt-channel-broker/ $eventing_mt_broker $image_prefix $tag
