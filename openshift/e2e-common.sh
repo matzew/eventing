@@ -171,10 +171,9 @@ function install_serverless(){
 function install_knative_eventing(){
   header "Installing Knative Eventing"
 
-  cat openshift/release/artifacts/knative-eventing-core.yaml > ci
-  cat openshift/release/artifacts/knative-eventing-imc.yaml >> ci
-  cat openshift/release/artifacts/knative-eventing-mt-broker.yaml >> ci
-
+  cat openshift/release/artifacts/eventing-core.yaml > ci
+  cat openshift/release/artifacts/in-memory-channel.yaml >> ci
+  cat openshift/release/artifacts/mt-channel-broker.yaml >>
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-controller|${KNATIVE_EVENTING_CONTROLLER}|g"                               ci
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-mtping|${KNATIVE_EVENTING_MTPING}|g"                                       ci
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-apiserver-receive-adapter|${KNATIVE_EVENTING_APISERVER_RECEIVE_ADAPTER}|g" ci

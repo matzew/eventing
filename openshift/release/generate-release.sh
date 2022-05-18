@@ -8,9 +8,9 @@ artifacts_dir="openshift/release/artifacts/"
 rm -rf $artifacts_dir
 mkdir -p $artifacts_dir
 
-eventing_core="${artifacts_dir}knative-eventing-core.yaml"
-eventing_imc="${artifacts_dir}knative-eventing-imc.yaml"
-eventing_mt_broker="${artifacts_dir}knative-eventing-mt-broker.yaml"
+eventing_core="${artifacts_dir}eventing-core.yaml"
+eventing_imc="${artifacts_dir}in-memory-channel.yaml"
+eventing_mt_broker="${artifacts_dir}mt-channel-broker.yaml"
 
 if [ "$release" == "ci" ]; then
     image_prefix="registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-"
