@@ -59,12 +59,12 @@ index 7cd5e8e57..96777f69f 100644
  
  ---
 diff --git a/test/rekt/resources/eventlibrary/eventlibrary_test.go b/test/rekt/resources/eventlibrary/eventlibrary_test.go
-index 0e1464ddf..fe3b19c2e 100644
+index ab948b642..d78921d84 100644
 --- a/test/rekt/resources/eventlibrary/eventlibrary_test.go
 +++ b/test/rekt/resources/eventlibrary/eventlibrary_test.go
-@@ -24,7 +24,7 @@ import (
- 
+@@ -30,7 +30,7 @@ var yaml embed.FS
  func Example() {
+ 	ctx := testlog.NewContext()
  	images := map[string]string{
 -		"ko://knative.dev/eventing/test/test_images/event-library": "gcr.io/knative-samples/helloworld-go",
 +		"registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-library": "gcr.io/knative-samples/helloworld-go",
@@ -85,12 +85,12 @@ index 207c3d681..8821bb577 100644
        env:
          - name: "K_SINK"
 diff --git a/test/rekt/resources/flaker/flaker_test.go b/test/rekt/resources/flaker/flaker_test.go
-index aee4d23c2..3d797342a 100644
+index bc33ccdc2..03b03a071 100644
 --- a/test/rekt/resources/flaker/flaker_test.go
 +++ b/test/rekt/resources/flaker/flaker_test.go
-@@ -24,7 +24,7 @@ import (
- 
+@@ -30,7 +30,7 @@ var yaml embed.FS
  func Example() {
+ 	ctx := testlog.NewContext()
  	images := map[string]string{
 -		"ko://knative.dev/eventing/test/test_images/event-flaker": "gcr.io/knative-samples/helloworld-go",
 +		"registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-flaker": "gcr.io/knative-samples/helloworld-go",
