@@ -38,7 +38,7 @@ spec:
         averageUtilization: 100
 ---
 # Webhook PDB.
-apiVersion: policy/v1
+apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: eventing-webhook
@@ -49,7 +49,7 @@ metadata:
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-eventing
 spec:
-  minAvailable: 80%
+  minAvailable: 1
   selector:
     matchLabels:
       app: eventing-webhook
