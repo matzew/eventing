@@ -1,9 +1,9 @@
 diff --git a/test/e2e/source_sinkbinding_v1_test.go b/test/e2e/source_sinkbinding_v1_test.go
-index 456069539..8328b6b83 100644
+index 7b3cbd311..6aa62c4de 100644
 --- a/test/e2e/source_sinkbinding_v1_test.go
 +++ b/test/e2e/source_sinkbinding_v1_test.go
-@@ -126,6 +126,7 @@ func TestSinkBindingV1Deployment(t *testing.T) {
- }
+@@ -42,6 +42,7 @@ import (
+ )
  
  func TestSinkBindingV1CronJob(t *testing.T) {
 +	t.Skip("SRVKE-500: Skipping since we set bindings to inclusion")
