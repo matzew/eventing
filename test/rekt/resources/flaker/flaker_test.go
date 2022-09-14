@@ -28,7 +28,7 @@ var yaml embed.FS
 
 func Example() {
 	images := map[string]string{
-		"registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-flaker": "gcr.io/knative-samples/helloworld-go",
+		"registry.ci.openshift.org/openshift/knative-v1.6:knative-eventing-test-event-flaker": "gcr.io/knative-samples/helloworld-go",
 	}
 	cfg := map[string]interface{}{
 		"name":      "foo",
