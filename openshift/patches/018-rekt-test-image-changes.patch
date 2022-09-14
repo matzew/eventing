@@ -11,7 +11,7 @@ index 3b01c8dc2..06d824591 100644
  		knative.WithKnativeNamespace(system.Namespace()),
  		knative.WithLoggingConfig,
 diff --git a/test/rekt/resources/containersource/containersource.yaml b/test/rekt/resources/containersource/containersource.yaml
-index f480b459b..51ebb5c82 100644
+index 7482dd1ef..e35d0a227 100644
 --- a/test/rekt/resources/containersource/containersource.yaml
 +++ b/test/rekt/resources/containersource/containersource.yaml
 @@ -42,7 +42,7 @@ spec:
@@ -20,31 +20,31 @@ index f480b459b..51ebb5c82 100644
        - name: heartbeats
 -        image: ko://knative.dev/eventing/test/test_images/heartbeats
 +        image: registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-heartbeats
+         imagePullPolicy: IfNotPresent
          args:
-         - --period=1
-         env:
+         - {{ .args }}
 diff --git a/test/rekt/resources/containersource/containersource_test.go b/test/rekt/resources/containersource/containersource_test.go
-index 501541bca..c2b81583a 100644
+index d59abd673..48faff01f 100644
 --- a/test/rekt/resources/containersource/containersource_test.go
 +++ b/test/rekt/resources/containersource/containersource_test.go
-@@ -47,7 +47,7 @@ func Example_min() {
+@@ -54,7 +54,7 @@ func Example_min() {
  	//     spec:
  	//       containers:
  	//       - name: heartbeats
 -	//         image: ko://knative.dev/eventing/test/test_images/heartbeats
 +	//         image: registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-heartbeats
+ 	//         imagePullPolicy: IfNotPresent
  	//         args:
  	//         - --period=1
- 	//         env:
-@@ -106,7 +106,7 @@ func Example_full() {
+@@ -116,7 +116,7 @@ func Example_full() {
  	//     spec:
  	//       containers:
  	//       - name: heartbeats
 -	//         image: ko://knative.dev/eventing/test/test_images/heartbeats
 +	//         image: registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-heartbeats
+ 	//         imagePullPolicy: IfNotPresent
  	//         args:
  	//         - --period=1
- 	//         env:
 diff --git a/test/rekt/resources/eventlibrary/eventlibrary.yaml b/test/rekt/resources/eventlibrary/eventlibrary.yaml
 index 7cd5e8e57..96777f69f 100644
 --- a/test/rekt/resources/eventlibrary/eventlibrary.yaml
