@@ -4077,8 +4077,6 @@ spec:
           capabilities:
             drop:
             - ALL
-          seccompProfile:
-            type: RuntimeDefault
 
         livenessProbe:
           httpGet:
@@ -4206,8 +4204,6 @@ spec:
             capabilities:
               drop:
               - ALL
-            seccompProfile:
-              type: RuntimeDefault
 
       serviceAccountName: pingsource-mt-adapter
 ---
@@ -4475,8 +4471,6 @@ spec:
           capabilities:
             drop:
             - ALL
-          seccompProfile:
-            type: RuntimeDefault
 
         ports:
         - name: https-webhook
