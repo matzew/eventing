@@ -25,7 +25,8 @@ git commit -m ":open_file_folder: Update openshift specific files."
 for p in openshift/patches/*
 do
  echo "Applying patch $p"
- git apply -v $p
+ # Apply patches and also add new files, created by the patches
+ git apply --index -v $p
 done
 
 make RELEASE=ci generate-release

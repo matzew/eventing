@@ -27,6 +27,8 @@ if [ -d "openshift/patches-${release}" ]; then
     # Update the nightly test images to actual versioned images
     sed -i "s/knative-nightly:knative/knative-${release}:knative/g" ${PATCH_DIR}/*.patch
 fi
-git apply $PATCH_DIR/*
+# Apply patches and also add new files, created by the patches
+git apply --index $PATCH_DIR/*
+
 make RELEASE=$release generate-release
 git commit -am ":fire: Apply carried patches."
