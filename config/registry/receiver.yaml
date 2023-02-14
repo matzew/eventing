@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-receiver
+  namespace: knative-eventing
+spec:
+  selector:
+    app: event-receiver
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: event-receiver
+      name: http
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: event-receiver
+  namespace: knative-eventing
+  labels:
+    app: event-receiver
+spec:
+  serviceAccountName: eventing-controller
+  containers:
+    - name: event-receiver
+      image: ko://knative.dev/eventing/cmd/registry
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: event-receiver

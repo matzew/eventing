@@ -22,3 +22,23 @@ metadata:
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-eventing
 spec: {}
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: trigger-ping
+  namespace: knative-eventing
+  labels:
+    eventing.knative.dev/release: devel
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/name: knative-eventing
+spec:
+  broker: my-default-broker
+  filter:
+    attributes:
+      type: demo.new
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: event-receiver
