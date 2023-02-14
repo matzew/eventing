@@ -5,13 +5,13 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/protocol"
 	"github.com/cloudevents/sdk-go/v2/protocol/http"
-	"github.com/google/uuid"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	eventingclientset "knative.dev/eventing/pkg/client/clientset/versioned"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/signals"
 	"log"
+	"strings"
 
 	"github.com/cloudevents/sdk-go/v2/event"
 )
@@ -21,7 +21,9 @@ func main() {
 }
 
 type payload struct {
-	Message string `json:"message"`
+	Sourcename  string   `json:"sourcename"`
+	Description string   `json:"description"`
+	Events      []string `json:"events"`
 }
 
 func run(ctx context.Context) {
@@ -40,30 +42,29 @@ func run(ctx context.Context) {
 			return nil, http.NewResult(400, "got error while unmarshalling data: %w", err)
 		}
 
+		//TODO fix me
 		knativeeventing := "knative-eventing"
 
-		et := &v1beta1.EventType{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      uuid.New().String(),
-				Namespace: knativeeventing,
-			},
-			Spec: v1beta1.EventTypeSpec{
-				Type:        data.Message,
-				Source:      nil,
-				Schema:      nil,
-				SchemaData:  "",
-				Broker:      "my-default-broker",
-				Description: "",
-			},
+		for _, event := range data.Events {
+			et := &v1beta1.EventType{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      strings.ToLower(data.Sourcename) + "-" + strings.ToLower(event),
+					Namespace: knativeeventing,
+				},
+				Spec: v1beta1.EventTypeSpec{
+					Type:        event,
+					Source:      nil,
+					Schema:      nil,
+					SchemaData:  "",
+					Broker:      "my-default-broker",
+					Description: data.Description,
+				},
+			}
+			_, err := eventingClient.EventingV1beta1().EventTypes(knativeeventing).Create(ctx, et, metav1.CreateOptions{})
+			if err != nil {
+				log.Printf("Got error: %s", err.Error())
+			}
 		}
-
-		_, err := eventingClient.EventingV1beta1().EventTypes(knativeeventing).Create(ctx, et, metav1.CreateOptions{})
-
-		if err != nil {
-			log.Printf("Got error: %s", err.Error())
-		}
-
 		return nil, nil
 	}))
-
 }

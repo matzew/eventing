@@ -36,7 +36,7 @@ spec:
   broker: my-default-broker
   filter:
     attributes:
-      type: demo.new
+      type: dev.knative.event.new
   subscriber:
     ref:
       apiVersion: v1
