@@ -56,7 +56,7 @@ func run(ctx context.Context) {
 					Source:      nil,
 					Schema:      nil,
 					SchemaData:  "",
-					Broker:      "my-default-broker",
+					Broker:      "",
 					Description: data.Description,
 				},
 			}
