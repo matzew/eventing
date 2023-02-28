@@ -20,7 +20,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/blang/semver/v4"
+	"k8s.io/client-go/discovery"
+	"knative.dev/pkg/ptr"
 	"sort"
+	"strings"
 
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
@@ -189,6 +193,11 @@ func (r *Reconciler) createReceiveAdapter(ctx context.Context, src *v1.ApiServer
 		return nil, err
 	}
 
+	// HACK: should go away when we move away from < 4.11 releases
+	if err := CheckMinimumKubeVersion(r.kubeClientSet.Discovery()); err == nil {
+		setPodSecurityContext(&expected.Spec.Template.Spec.Containers[0])
+	}
+
 	ra, err := r.kubeClientSet.AppsV1().Deployments(src.Namespace).Get(ctx, expected.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		ra, err = r.kubeClientSet.AppsV1().Deployments(src.Namespace).Create(ctx, expected, metav1.CreateOptions{})
@@ -317,4 +326,68 @@ func (r *Reconciler) createCloudEventAttributes(src *v1.ApiServerSource) ([]duck
 		})
 	}
 	return ceAttributes, nil
+}
+
+// CheckMinimumKubeVersion checks if current K8s version we are on is higher than the one passed.
+// If an error is returned then the version is not higher than the minimum
+func CheckMinimumKubeVersion(versioner discovery.ServerVersionInterface) error {
+	v, err := versioner.ServerVersion()
+	if err != nil {
+		return err
+	}
+	currentVersion, err := semver.Make(normalizeVersion(v.GitVersion))
+	if err != nil {
+		return err
+	}
+
+	minimumVersion, err := semver.Make(normalizeVersion("v1.24.0"))
+	if err != nil {
+		return err
+	}
+
+	// If no specific pre-release requirement is set, we default to "-0" to always allow
+	// pre-release versions of the same Major.Minor.Patch version.
+	if len(minimumVersion.Pre) == 0 {
+		minimumVersion.Pre = []semver.PRVersion{{VersionNum: 0, IsNum: true}}
+	}
+
+	if currentVersion.LT(minimumVersion) {
+		return fmt.Errorf("kubernetes version %q is not compatible, need at least %q",
+			currentVersion, minimumVersion)
+	}
+	return nil
+}
+
+func normalizeVersion(v string) string {
+	if strings.HasPrefix(v, "v") {
+		// No need to account for unicode widths.
+		return v[1:]
+	}
+	return v
+}
+
+func setPodSecurityContext(container *corev1.Container) {
+	if container.SecurityContext == nil {
+		container.SecurityContext = &corev1.SecurityContext{
+			AllowPrivilegeEscalation: ptr.Bool(false),
+			ReadOnlyRootFilesystem:   ptr.Bool(true),
+			RunAsNonRoot:             ptr.Bool(true),
+			Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+			SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
+		}
+	} else {
+		if container.SecurityContext.RunAsNonRoot == nil {
+			container.SecurityContext.RunAsNonRoot = ptr.Bool(true)
+		}
+		if container.SecurityContext.ReadOnlyRootFilesystem == nil {
+			container.SecurityContext.ReadOnlyRootFilesystem = ptr.Bool(true)
+		}
+		if container.SecurityContext.AllowPrivilegeEscalation == nil {
+			container.SecurityContext.AllowPrivilegeEscalation = ptr.Bool(false)
+		}
+		container.SecurityContext.Capabilities = &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}}
+		if container.SecurityContext.SeccompProfile == nil {
+			container.SecurityContext.SeccompProfile = &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault}
+		}
+	}
 }
