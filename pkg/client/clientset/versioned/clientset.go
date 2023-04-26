@@ -26,6 +26,7 @@ import (
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
 	eventingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"
+	eventingv1alpha1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
 	eventingv1beta1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1beta1"
 	flowsv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/flows/v1"
 	messagingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1"
@@ -35,6 +36,7 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	EventingV1alpha1() eventingv1alpha1.EventingV1alpha1Interface
 	EventingV1beta1() eventingv1beta1.EventingV1beta1Interface
 	EventingV1() eventingv1.EventingV1Interface
 	FlowsV1() flowsv1.FlowsV1Interface
@@ -47,12 +49,18 @@ type Interface interface {
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	eventingV1beta1 *eventingv1beta1.EventingV1beta1Client
-	eventingV1      *eventingv1.EventingV1Client
-	flowsV1         *flowsv1.FlowsV1Client
-	messagingV1     *messagingv1.MessagingV1Client
-	sourcesV1beta2  *sourcesv1beta2.SourcesV1beta2Client
-	sourcesV1       *sourcesv1.SourcesV1Client
+	eventingV1alpha1 *eventingv1alpha1.EventingV1alpha1Client
+	eventingV1beta1  *eventingv1beta1.EventingV1beta1Client
+	eventingV1       *eventingv1.EventingV1Client
+	flowsV1          *flowsv1.FlowsV1Client
+	messagingV1      *messagingv1.MessagingV1Client
+	sourcesV1beta2   *sourcesv1beta2.SourcesV1beta2Client
+	sourcesV1        *sourcesv1.SourcesV1Client
+}
+
+// EventingV1alpha1 retrieves the EventingV1alpha1Client
+func (c *Clientset) EventingV1alpha1() eventingv1alpha1.EventingV1alpha1Interface {
+	return c.eventingV1alpha1
 }
 
 // EventingV1beta1 retrieves the EventingV1beta1Client
@@ -129,6 +137,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 
 	var cs Clientset
 	var err error
+	cs.eventingV1alpha1, err = eventingv1alpha1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.eventingV1beta1, err = eventingv1beta1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -174,6 +186,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.eventingV1alpha1 = eventingv1alpha1.New(c)
 	cs.eventingV1beta1 = eventingv1beta1.New(c)
 	cs.eventingV1 = eventingv1.New(c)
 	cs.flowsV1 = flowsv1.New(c)

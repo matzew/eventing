@@ -34,6 +34,7 @@ import (
 	dynamic "k8s.io/client-go/dynamic"
 	rest "k8s.io/client-go/rest"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
+	v1alpha1 "knative.dev/eventing/pkg/apis/eventing/v1alpha1"
 	v1beta1 "knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	flowsv1 "knative.dev/eventing/pkg/apis/flows/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
@@ -41,6 +42,7 @@ import (
 	v1beta2 "knative.dev/eventing/pkg/apis/sources/v1beta2"
 	versioned "knative.dev/eventing/pkg/client/clientset/versioned"
 	typedeventingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"
+	typedeventingv1alpha1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
 	typedeventingv1beta1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1beta1"
 	typedflowsv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/flows/v1"
 	typedmessagingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1"
@@ -104,6 +106,152 @@ func convert(from interface{}, to runtime.Object) error {
 		return fmt.Errorf("Unmarshal() = %w", err)
 	}
 	return nil
+}
+
+// EventingV1alpha1 retrieves the EventingV1alpha1Client
+func (w *wrapClient) EventingV1alpha1() typedeventingv1alpha1.EventingV1alpha1Interface {
+	return &wrapEventingV1alpha1{
+		dyn: w.dyn,
+	}
+}
+
+type wrapEventingV1alpha1 struct {
+	dyn dynamic.Interface
+}
+
+func (w *wrapEventingV1alpha1) RESTClient() rest.Interface {
+	panic("RESTClient called on dynamic client!")
+}
+
+func (w *wrapEventingV1alpha1) EventTypeDefinitions(namespace string) typedeventingv1alpha1.EventTypeDefinitionInterface {
+	return &wrapEventingV1alpha1EventTypeDefinitionImpl{
+		dyn: w.dyn.Resource(schema.GroupVersionResource{
+			Group:    "eventing.knative.dev",
+			Version:  "v1alpha1",
+			Resource: "eventtypedefinitions",
+		}),
+
+		namespace: namespace,
+	}
+}
+
+type wrapEventingV1alpha1EventTypeDefinitionImpl struct {
+	dyn dynamic.NamespaceableResourceInterface
+
+	namespace string
+}
+
+var _ typedeventingv1alpha1.EventTypeDefinitionInterface = (*wrapEventingV1alpha1EventTypeDefinitionImpl)(nil)
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Create(ctx context.Context, in *v1alpha1.EventTypeDefinition, opts v1.CreateOptions) (*v1alpha1.EventTypeDefinition, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "eventing.knative.dev",
+		Version: "v1alpha1",
+		Kind:    "EventTypeDefinition",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Create(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinition{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.EventTypeDefinition, error) {
+	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinition{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.EventTypeDefinitionList, error) {
+	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinitionList{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.EventTypeDefinition, err error) {
+	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinition{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Update(ctx context.Context, in *v1alpha1.EventTypeDefinition, opts v1.UpdateOptions) (*v1alpha1.EventTypeDefinition, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "eventing.knative.dev",
+		Version: "v1alpha1",
+		Kind:    "EventTypeDefinition",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Update(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinition{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) UpdateStatus(ctx context.Context, in *v1alpha1.EventTypeDefinition, opts v1.UpdateOptions) (*v1alpha1.EventTypeDefinition, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "eventing.knative.dev",
+		Version: "v1alpha1",
+		Kind:    "EventTypeDefinition",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).UpdateStatus(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.EventTypeDefinition{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapEventingV1alpha1EventTypeDefinitionImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+	return nil, errors.New("NYI: Watch")
 }
 
 // EventingV1beta1 retrieves the EventingV1beta1Client
