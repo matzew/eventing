@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20210420163308-c1402a70e2f1
-	github.com/cloudevents/conformance v0.2.0
+	github.com/cloudevents/conformance v0.4.1
 	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.15.2
 	github.com/cloudevents/sdk-go/sql/v2 v2.15.2
 	github.com/cloudevents/sdk-go/v2 v2.15.2
@@ -16,7 +16,7 @@ require (
 	github.com/google/mako v0.0.0-20190821191249-122f8dcef9e3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/hashicorp/go-cleanhttp v0.5.1
+	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.6.7
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/kelseyhightower/envconfig v1.4.0
