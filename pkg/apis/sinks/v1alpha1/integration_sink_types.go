@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Knative Authors
+Copyright 2024 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	eventingduckv1 "knative.dev/eventing/pkg/apis/duck/v1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/kmeta"
@@ -28,43 +29,30 @@ import (
 // +genclient
 // +genreconciler
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:defaulter-gen=true
 
-// IntegrationSource is the Schema for the Integrationsources API
-type IntegrationSource struct {
+// IntegrationSink is the Schema for the IntegrationSink API.
+type IntegrationSink struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   IntegrationSourceSpec   `json:"spec,omitempty"`
-	Status IntegrationSourceStatus `json:"status,omitempty"`
+	Spec   IntegrationSinkSpec   `json:"spec,omitempty"`
+	Status IntegrationSinkStatus `json:"status,omitempty"`
 }
 
+// Check the interfaces that JobSink should be implementing.
 var (
-	_ runtime.Object     = (*IntegrationSource)(nil)
-	_ kmeta.OwnerRefable = (*IntegrationSource)(nil)
-	_ apis.Validatable   = (*IntegrationSource)(nil)
-	_ apis.Defaultable   = (*IntegrationSource)(nil)
-	_ apis.HasSpec       = (*IntegrationSource)(nil)
-	_ duckv1.KRShaped    = (*IntegrationSource)(nil)
+	_ runtime.Object     = (*IntegrationSink)(nil)
+	_ kmeta.OwnerRefable = (*IntegrationSink)(nil)
+	_ apis.Validatable   = (*IntegrationSink)(nil)
+	_ apis.Defaultable   = (*IntegrationSink)(nil)
+	_ apis.HasSpec       = (*IntegrationSink)(nil)
+	_ duckv1.KRShaped    = (*IntegrationSink)(nil)
+	//	_ apis.Convertible   = (*IntegrationSink)(nil)
 )
 
-// IntegrationSourceSpec defines the desired state of IntegrationSource
-type IntegrationSourceSpec struct {
-	// inherits duck/v1 SourceSpec, which currently provides:
-	// * Sink - a reference to an object that will resolve to a domain name or
-	//   a URI directly to use as the sink.
-	// * CloudEventOverrides - defines overrides to control the output format
-	//   and modifications of the event sent to the sink.
-	duckv1.SourceSpec `json:",inline"`
-
-	Aws   *Aws   `json:"aws,omitempty"`   // AWS source configuration
-	Timer *Timer `json:"timer,omitempty"` // Timer configuration
-}
-
-type Timer struct {
-	Period      int    `json:"period" default:"1000"`            // Interval (in milliseconds) between producing messages
-	Message     string `json:"message"`                          // Message to generate
-	ContentType string `json:"contentType" default:"text/plain"` // Content type of generated message
-	RepeatCount int    `json:"repeatCount,omitempty"`            // Max number of fires (optional)
+type IntegrationSinkSpec struct {
+	Aws *Aws `json:"aws,omitempty"` // AWS source configuration
 }
 
 type AWSCommon struct {
@@ -110,18 +98,10 @@ type AWSSQS struct {
 	VisibilityTimeout  int    `json:"visibilityTimeout,omitempty"`           // Visibility timeout in seconds
 }
 
-type AWSDDBStreams struct {
-	AWSCommon
-	Table              string `json:"table,omitempty"`                                    // The name of the DynamoDB table
-	StreamIteratorType string `json:"streamIteratorType,omitempty" default:"FROM_LATEST"` // Defines where in the DynamoDB stream to start getting records
-	Delay              int    `json:"delay,omitempty" default:"500"`                      // Delay in milliseconds before the next poll from the database
-}
-
 type Aws struct {
-	S3         *AWSS3         `json:"s3,omitempty"`          // S3 source configuration
-	SQS        *AWSSQS        `json:"sqs,omitempty"`         // SQS source configuration
-	DDBStreams *AWSDDBStreams `json:"ddb-streams,omitempty"` // DynamoDB Streams source configuration
-	Auth       *Auth          `json:"auth,omitempty"`
+	S3   *AWSS3  `json:"s3,omitempty"`  // S3 source configuration
+	SQS  *AWSSQS `json:"sqs,omitempty"` // SQS source configuration
+	Auth *Auth   `json:"auth,omitempty"`
 }
 
 type Auth struct {
@@ -150,38 +130,39 @@ type SecretReference struct {
 	Name string `json:"name"`
 }
 
-// GetGroupVersionKind returns the GroupVersionKind.
-func (*IntegrationSource) GetGroupVersionKind() schema.GroupVersionKind {
-	return SchemeGroupVersion.WithKind("IntegrationSource")
+type IntegrationSinkStatus struct {
+	duckv1.Status `json:",inline"`
+
+	// AddressStatus is the part where the JobSink fulfills the Addressable contract.
+	// It exposes the endpoint as an URI to get events delivered.
+	// +optional
+	duckv1.AddressStatus `json:",inline"`
+
+	// AppliedEventPoliciesStatus contains the list of EventPolicies which apply to this JobSink
+	// +optional
+	eventingduckv1.AppliedEventPoliciesStatus `json:",inline"`
 }
 
-// IntegrationSourceStatus defines the observed state of IntegrationSource
-type IntegrationSourceStatus struct {
-	// inherits duck/v1 SourceStatus, which currently provides:
-	// * ObservedGeneration - the 'Generation' of the Service that was last
-	//   processed by the controller.
-	// * Conditions - the latest available observations of a resource's current
-	//   state.
-	// * SinkURI - the current active sink URI that has been configured for the
-	//   Source.
-	duckv1.SourceStatus `json:",inline"`
+// GetGroupVersionKind returns the GroupVersionKind.
+func (*IntegrationSink) GetGroupVersionKind() schema.GroupVersionKind {
+	return SchemeGroupVersion.WithKind("IntegrationSink")
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// IntegrationSourceList contains a list of IntegrationSource
-type IntegrationSourceList struct {
+// IntegrationSinkList contains a list of IntegrationSink
+type IntegrationSinkList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []IntegrationSource `json:"items"`
+	Items           []IntegrationSink `json:"items"`
 }
 
-// GetUntypedSpec returns the spec of the IntegrationSource.
-func (c *IntegrationSource) GetUntypedSpec() interface{} {
+// GetUntypedSpec returns the spec of the IntegrationSink.
+func (c *IntegrationSink) GetUntypedSpec() interface{} {
 	return c.Spec
 }
 
-// GetStatus retrieves the status of the IntegrationSource. Implements the KRShaped interface.
-func (c *IntegrationSource) GetStatus() *duckv1.Status {
+// GetStatus retrieves the status of the IntegrationSink. Implements the KRShaped interface.
+func (c *IntegrationSink) GetStatus() *duckv1.Status {
 	return &c.Status.Status
 }
