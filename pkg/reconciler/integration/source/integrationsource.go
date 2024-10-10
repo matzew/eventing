@@ -24,13 +24,8 @@ import (
 )
 
 const (
-	// Name of the corev1.Events emitted from the reconciliation process
-	sourceReconciled   = "KameletSourceReconciled"
-	deploymentCreated  = "KameletSourceDeploymentCreated"
-	serciceCreated     = "KameletSourceServiceCreated"
-	deploymentUpdated  = "KameletSourceDeploymentUpdated"
-	sinkBindingCreated = "KameletSourceSinkBindingCreated"
-	sinkBindingUpdated = "KameletSourceSinkBindingUpdated"
+	containerSourceCreated = "ContainerSourceCreated"
+	containerSourceUpdated = "ContainerSourceUpdated"
 
 	component = "integrationsource"
 )
@@ -61,10 +56,19 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, source *v1alpha1.Integra
 		return err
 	}
 
+	logging.FromContext(ctx).Infow("Reconciled ContainerSource", zap.Any("ContainerSource", cs))
+
 	if cs != nil {
 		if c := cs.Status.GetCondition(v1.ContainerSourceConditionReady); c.IsTrue() {
+
+			logging.FromContext(ctx).Infow("XXX ContainerSource is ready", zap.Any("ContainerSource", cs))
+			source.Status.PropagateContainerSourcueStatus(&cs.Status)
+
 			source.Status.MarkSink(cs.Status.SinkURI)
 		} else if c.IsFalse() {
+
+			logging.FromContext(ctx).Infow("YYY ContainerSource is not ready", zap.Any("ContainerSource", cs))
+
 			source.Status.MarkNoSink(c.GetReason(), "%s", c.GetMessage())
 		}
 	}
@@ -81,7 +85,7 @@ func (r *Reconciler) reconcileContainerSource(ctx context.Context, source *v1alp
 		if err != nil {
 			return nil, fmt.Errorf("creating new ContainerSource: %v", err)
 		}
-		controller.GetEventRecorder(ctx).Eventf(source, corev1.EventTypeNormal, sourceReconciled, "ContainerSource created %q", cs.Name)
+		controller.GetEventRecorder(ctx).Eventf(source, corev1.EventTypeNormal, containerSourceCreated, "ContainerSource created %q", cs.Name)
 	} else if err != nil {
 		return nil, fmt.Errorf("getting ContainerSource: %v", err)
 	} else if !metav1.IsControlledBy(cs, source) {
@@ -92,12 +96,12 @@ func (r *Reconciler) reconcileContainerSource(ctx context.Context, source *v1alp
 		if err != nil {
 			return nil, fmt.Errorf("updating ContainerSource: %v", err)
 		}
-		controller.GetEventRecorder(ctx).Eventf(source, corev1.EventTypeNormal, sourceReconciled, "ContainerSource updated %q", cs.Name)
+		controller.GetEventRecorder(ctx).Eventf(source, corev1.EventTypeNormal, containerSourceUpdated, "ContainerSource updated %q", cs.Name)
 	} else {
 		logging.FromContext(ctx).Debugw("Reusing existing ContainerSource", zap.Any("ContainerSource", cs))
-
 	}
 
+	source.Status.PropagateContainerSourcueStatus(&cs.Status)
 	return cs, nil
 }
 
