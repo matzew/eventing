@@ -67,11 +67,7 @@ func (s *ContainerSourceStatus) InitializeConditions() {
 // ContainerSourceConditionSinkBindingReady should be marked as true, false or unknown.
 func (s *ContainerSourceStatus) PropagateSinkBindingStatus(status *SinkBindingStatus) {
 	// Do not copy conditions nor observedGeneration
-	conditions := s.Conditions
-	observedGeneration := s.ObservedGeneration
-	s.SourceStatus = status.SourceStatus
-	s.Conditions = conditions
-	s.ObservedGeneration = observedGeneration
+	s.SourceStatus = *status.SourceStatus.DeepCopy()
 
 	cond := status.GetCondition(apis.ConditionReady)
 	switch {
