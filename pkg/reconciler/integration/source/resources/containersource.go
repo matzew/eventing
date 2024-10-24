@@ -41,7 +41,7 @@ func NewContainerSource(source *v1alpha1.IntegrationSource) *sourcesv1.Container
 
 // Function to create environment variables for Timer or AWS configurations dynamically
 func makeEnv(source *v1alpha1.IntegrationSource) []corev1.EnvVar {
-	var envVars []corev1.EnvVar
+	var envVars = integration.MakeSSLEnvVar()
 
 	// Timer environment variables
 	if source.Spec.Timer != nil {

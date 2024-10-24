@@ -96,6 +96,19 @@ func MakeSecretEnvVar(name, key, secretName string) corev1.EnvVar {
 	}
 }
 
+func MakeSSLEnvVar() []corev1.EnvVar {
+	return []corev1.EnvVar{
+		{
+			Name:  "CAMEL_KNATIVE_CLIENT_SSL_ENABLED",
+			Value: "true",
+		},
+		{
+			Name:  "CAMEL_KNATIVE_CLIENT_SSL_CERT_PATH",
+			Value: "/knative-custom-certs/knative-eventing-bundle.pem",
+		},
+	}
+}
+
 func MakeBaseVariableName(variable, suffix string) string {
 	var builder strings.Builder
 	// Calculate the total length to allocate memory efficiently
