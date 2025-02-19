@@ -53,7 +53,12 @@ func main() {
 		auth.OIDCLabelSelector,
 		eventingtls.TrustBundleLabelSelector,
 		sinks.JobSinkJobsLabelSelector,
+		"app.kubernetes.io/name",
 	)
+
+	//for _, inf := range []injection.InformerInjector{v1certificate.WithInformer} {
+	//	injection.Default.RegisterInformer(inf)
+	//}
 
 	sharedmain.MainWithContext(ctx, "controller",
 		// Messaging
