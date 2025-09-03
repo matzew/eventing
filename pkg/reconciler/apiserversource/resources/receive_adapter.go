@@ -133,13 +133,14 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 
 func makeEnv(args *ReceiveAdapterArgs) ([]corev1.EnvVar, error) {
 	cfg := &apiserver.Config{
-		Namespaces:    args.Namespaces,
-		Resources:     make([]apiserver.ResourceWatch, 0, len(args.Source.Spec.Resources)),
-		ResourceOwner: args.Source.Spec.ResourceOwner,
-		EventMode:     args.Source.Spec.EventMode,
-		AllNamespaces: args.AllNamespaces,
-		Filters:       args.Source.Spec.Filters,
-		FailFast:      args.FailFast,
+		Namespaces:        args.Namespaces,
+		Resources:         make([]apiserver.ResourceWatch, 0, len(args.Source.Spec.Resources)),
+		ResourceOwner:     args.Source.Spec.ResourceOwner,
+		EventMode:         args.Source.Spec.EventMode,
+		AllNamespaces:     args.AllNamespaces,
+		NamespaceSelector: args.Source.Spec.NamespaceSelector,
+		Filters:           args.Source.Spec.Filters,
+		FailFast:          args.FailFast,
 	}
 
 	for _, r := range args.Source.Spec.Resources {

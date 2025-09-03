@@ -22,6 +22,8 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 	"knative.dev/eventing/pkg/adapter/apiserver/events"
 	"knative.dev/eventing/pkg/eventfilter"
@@ -33,6 +35,8 @@ type resourceDelegate struct {
 	ref                 bool
 	apiServerSourceName string
 	filter              eventfilter.Filter
+	namespaceSelector   labels.Selector
+	allowedNamespaces   map[string]bool // set of namespaces that match the selector
 
 	logger *zap.SugaredLogger
 }
@@ -57,6 +61,20 @@ func (a *resourceDelegate) Delete(obj interface{}) error {
 type makeEventFunc func(string, string, interface{}, bool) (context.Context, cloudevents.Event, error)
 
 func (a *resourceDelegate) handleKubernetesObject(makeEvent makeEventFunc, obj interface{}) error {
+	// If namespace selector is configured, filter based on the resource's namespace
+	if a.namespaceSelector != nil {
+		if unstrObj, ok := obj.(*unstructured.Unstructured); ok {
+			namespace := unstrObj.GetNamespace()
+			if namespace != "" {
+				// Check if this namespace is in our allowed namespaces set
+				if !a.allowedNamespaces[namespace] {
+					a.logger.Debugf("Filtering out event from namespace %s (not in namespace selector)", namespace)
+					return nil
+				}
+			}
+		}
+	}
+
 	ctx, event, err := makeEvent(a.source, a.apiServerSourceName, obj, a.ref)
 
 	if err != nil {

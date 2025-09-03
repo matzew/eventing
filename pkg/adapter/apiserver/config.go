@@ -17,6 +17,7 @@ package apiserver
 
 import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	v1 "knative.dev/eventing/pkg/apis/sources/v1"
@@ -40,6 +41,12 @@ type Config struct {
 	// AllNamespaces indicates whether this source is watching all
 	// existing namespaces
 	AllNamespaces bool `json:"allNamespaces"`
+
+	// NamespaceSelector is the original label selector used to determine namespaces.
+	// When present, indicates that cluster-wide watches should be used with
+	// client-side filtering instead of individual per-namespace watches.
+	// +optional
+	NamespaceSelector *metav1.LabelSelector `json:"namespaceSelector,omitempty"`
 
 	// Resource is the resource this source will track and send related
 	// lifecycle events from the Kubernetes ApiServer.

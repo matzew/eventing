@@ -27,6 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 
@@ -189,6 +190,25 @@ func (a *apiServerAdapter) startFailFast(ctx context.Context, stopCh <-chan stru
 }
 
 func (a *apiServerAdapter) setupDelegate() cache.Store {
+	var namespaceSelector labels.Selector
+	if a.config.NamespaceSelector != nil {
+		var err error
+		namespaceSelector, err = metav1.LabelSelectorAsSelector(a.config.NamespaceSelector)
+		if err != nil {
+			a.logger.Errorw("invalid namespace selector", zap.Error(err))
+			// Continue without namespace selector filtering
+		}
+	}
+
+	// Create allowed namespaces map for efficient lookup when using namespace selector
+	var allowedNamespaces map[string]bool
+	if namespaceSelector != nil {
+		allowedNamespaces = make(map[string]bool, len(a.config.Namespaces))
+		for _, ns := range a.config.Namespaces {
+			allowedNamespaces[ns] = true
+		}
+	}
+
 	var delegate cache.Store = &resourceDelegate{
 		ce:                  a.ce,
 		source:              a.source,
@@ -196,6 +216,8 @@ func (a *apiServerAdapter) setupDelegate() cache.Store {
 		ref:                 a.config.EventMode == v1.ReferenceMode,
 		apiServerSourceName: a.name,
 		filter:              subscriptionsapi.NewAllFilter(subscriptionsapi.MaterializeFiltersList(a.logger.Desugar(), a.config.Filters)...),
+		namespaceSelector:   namespaceSelector,
+		allowedNamespaces:   allowedNamespaces,
 	}
 	if a.config.ResourceOwner != nil {
 		a.logger.Infow("will be filtered",
@@ -229,8 +251,14 @@ func (a *apiServerAdapter) collectResourceMatches() ([]resourceWatchMatch, error
 				match.apiResource = &apires
 
 				if apires.Namespaced && !a.config.AllNamespaces {
-					for _, ns := range a.config.Namespaces {
-						match.resourceInterfaces = append(match.resourceInterfaces, a.k8s.Resource(configRes.GVR).Namespace(ns))
+					// If namespaceSelector is present, use cluster-wide watches with client-side filtering
+					if a.config.NamespaceSelector != nil {
+						match.resourceInterfaces = append(match.resourceInterfaces, a.k8s.Resource(configRes.GVR))
+					} else {
+						// Use individual per-namespace watches for explicitly listed namespaces
+						for _, ns := range a.config.Namespaces {
+							match.resourceInterfaces = append(match.resourceInterfaces, a.k8s.Resource(configRes.GVR).Namespace(ns))
+						}
 					}
 				} else {
 					match.resourceInterfaces = append(match.resourceInterfaces, a.k8s.Resource(configRes.GVR))
